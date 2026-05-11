@@ -15,9 +15,9 @@ const Layout = () => {
           animation: 'fade',
         }}
       />
-      <Stack.Screen name="screenMovieDetails/[id]" options={{ animation: 'fade_from_bottom', headerBackVisible: false, headerBackTitleVisible: false }} />
-      <Stack.Screen name="screenSerieDetails/[id]" options={{ animation: 'fade_from_bottom', headerBackVisible: false, headerBackTitleVisible: false }} />
-      <Stack.Screen name="screenCastDetails/[id]" options={{ animation: 'fade_from_bottom', headerBackVisible: false, headerBackTitleVisible: false }} />
+      <Stack.Screen name="screenMovieDetails/[id]" options={{ animation: 'fade_from_bottom', headerShown: false }} />
+      <Stack.Screen name="screenSerieDetails/[id]" options={{ animation: 'fade_from_bottom', headerShown: false }} />
+      <Stack.Screen name="screenCastDetails/[id]" options={{ animation: 'fade_from_bottom', headerShown: false }} />
     </Stack>
   );
 };

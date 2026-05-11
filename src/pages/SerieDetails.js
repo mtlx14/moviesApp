@@ -1,6 +1,7 @@
 import { Dimensions, View, Pressable, Linking } from 'react-native';
 import { Image } from 'expo-image';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ButtonGoBack } from '../components/ButtonGoBack';
 import { MainFrame } from '../components/MainFrame';
 import { SubTitleType1 } from '../components/SubTitleType1';
@@ -76,6 +77,7 @@ const openTrailer = async (trailerLink) => {
 };
 export default function SerieDetails() {
   const { id } = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
   const sectionStyle = styles.sectionNewMovieDetails;
   const [movie, setMovie] = useState([]);
 
@@ -394,21 +396,16 @@ export default function SerieDetails() {
       <View style={{ backgroundColor: '#615E5B', minHeight: windowHeight, minWidth: windowWidth }}>
         {isFocused && (
           <Animated.View exiting={FadeOut.springify().damping(80).stiffness(50).delay(500)} entering={FadeIn.springify().damping(80).stiffness(50)}>
-            <Stack.Screen
-              options={{
-                headerBackVisible: false,
-                headerLeft: !openPoster.open
-                  ? () => (
-                      <ButtonGoBack
-                        opacityBlur={opacityOutBlurBar}
-                        onPress={() => {
-                          navigation.goBack();
-                        }}
-                      />
-                    )
-                  : () => <></>,
-              }}
-            />
+            {!openPoster.open && (
+              <View style={{ position: 'absolute', top: insets.top - 5, left: 20, zIndex: 10 }}>
+                <ButtonGoBack
+                  opacityBlur={opacityOutBlurBar}
+                  onPress={() => {
+                    navigation.goBack();
+                  }}
+                />
+              </View>
+            )}
 
             <MainFrame>
               {movie.id && (

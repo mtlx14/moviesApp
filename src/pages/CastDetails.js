@@ -1,4 +1,5 @@
-import { useLocalSearchParams, Stack, useNavigation } from 'expo-router';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TextType1 } from '../components/TextType1';
 import { MainFrame } from '../components/MainFrame';
 import { ButtonGoBack } from '../components/ButtonGoBack';
@@ -59,6 +60,7 @@ function Button_libraryFull({ entering }) {
 
 export default function CastDetails() {
   const { id, bg } = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
   const windowHeight = Dimensions.get('window').height;
   const windowWidth = Dimensions.get('window').width;
   const navigation = useNavigation();
@@ -148,20 +150,14 @@ export default function CastDetails() {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          headerBackVisible: false,
-          headerBackTitleVisible: false,
-          headerLeft: () => (
-            <ButtonGoBack
-              opacityBlur={opacityOutBlurBar}
-              onPress={() => {
-                navigation.goBack();
-              }}
-            />
-          ),
-        }}
-      />
+      <View style={{ position: 'absolute', top: insets.top - 5, left: 20, zIndex: 10 }}>
+        <ButtonGoBack
+          opacityBlur={opacityOutBlurBar}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        />
+      </View>
       <MainFrame>
         <View style={{ position: 'absolute', width: '100%', overflow: 'hidden', height: windowHeight }}>
           {isFocused && (
