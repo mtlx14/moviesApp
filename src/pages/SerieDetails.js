@@ -241,84 +241,104 @@ export default function SerieDetails() {
 
   const Y_TARGET = 297;
   const HALF_Y_TARGET = 297 / 2;
-  const scrollY = useSharedValue(0);
-  const handleScroll = useAnimatedScrollHandler((e) => {
-    const { y } = e.contentOffset;
-    scrollY.value = y;
+  // Parte de abajo (pósters e imágenes): se monta cuando el scroll se detiene en el punto
+  // de detención o más abajo, que es cuando lo más probable es que el usuario esté quieto
+  const [showLowerSections, setShowLowerSections] = useState(false);
+  const lowerSectionsRequested = useSharedValue(false);
+  const handleScrollStop = (e) => {
+    'worklet';
+    if (!lowerSectionsRequested.value && e.contentOffset.y >= Y_TARGET - 2) {
+      lowerSectionsRequested.value = true;
+      runOnJS(setShowLowerSections)(true);
+    }
+  };
 
-    if (y <= 500) {
-      if (y <= Y_TARGET && y >= 0) {
-        let ceroOne = y / Y_TARGET;
-        topContainerHeight.value = ceroOne;
-        opacityIn2.value = ceroOne;
-        opacityOut2.value = 1 - ceroOne;
-        if (y > 90) {
-          let ceroOne2 = (y - 90) / (Y_TARGET - 90);
-          gradientOpacity.value = 1 - ceroOne2;
+  const scrollY = useSharedValue(0);
+  const handleScroll = useAnimatedScrollHandler({
+    // fin del impulso del scroll
+    onMomentumEnd: handleScrollStop,
+    // soltó el dedo sin impulso (el scroll ya quedó quieto)
+    onEndDrag: (e) => {
+      if (!e.velocity || e.velocity.y === 0) handleScrollStop(e);
+    },
+    onScroll: (e) => {
+      const { y } = e.contentOffset;
+      scrollY.value = y;
+
+      if (y <= 500) {
+        if (y <= Y_TARGET && y >= 0) {
+          let ceroOne = y / Y_TARGET;
+          topContainerHeight.value = ceroOne;
+          opacityIn2.value = ceroOne;
+          opacityOut2.value = 1 - ceroOne;
+          if (y > 90) {
+            let ceroOne2 = (y - 90) / (Y_TARGET - 90);
+            gradientOpacity.value = 1 - ceroOne2;
+          }
+        }
+        if (y <= HALF_Y_TARGET && y >= 0) {
+          let ceroOne = 1 - y / HALF_Y_TARGET;
+          opacityOut.value = ceroOne;
+        } else if (y > HALF_Y_TARGET) {
+          opacityOut.value = 0;
+        }
+
+        if (y <= Y_TARGET && y >= HALF_Y_TARGET) {
+          let ceroOne = (y - HALF_Y_TARGET) / HALF_Y_TARGET;
+          opacityIn.value = ceroOne;
+        } else if (y < HALF_Y_TARGET) {
+          opacityIn.value = 0;
+        }
+        if (y <= Y_TARGET && y >= 230) {
+          let ceroOne = (y - 230) / (Y_TARGET - 230);
+          opacityIn3.value = ceroOne;
+        } else if (y < 230) {
+          opacityIn3.value = 0;
+        }
+
+        if (y <= 150 && y >= 0) {
+          let ceroOne = 1 - y / 150;
+          opacityOut3.value = ceroOne;
+        } else if (y > 150) {
+          opacityOut3.value = 0;
+        }
+        if (y < 0) {
+          topContainerHeight.value = 0;
+          opacityIn2.value = 0;
+          opacityOut2.value = 1;
+          opacityOut.value = 1;
+          opacityOut3.value = 1;
+          gradientOpacity.value = 1;
+        } else if (y > Y_TARGET) {
+          topContainerHeight.value = 1;
+          opacityIn2.value = 1;
+          opacityOut2.value = 0;
+          opacityIn.value = 1;
+          opacityIn3.value = 1;
         }
       }
-      if (y <= HALF_Y_TARGET && y >= 0) {
-        let ceroOne = 1 - y / HALF_Y_TARGET;
-        opacityOut.value = ceroOne;
-      } else if (y > HALF_Y_TARGET) {
-        opacityOut.value = 0;
+
+      if (y >= 440 && y <= 500) {
+        let ceroOne = (y - 440) / 60;
+        opacityInBlurBar.value = ceroOne;
+        opacityOutBlurBar.value = 1 - ceroOne;
+      } else if (y > 500) {
+        opacityInBlurBar.value = 1;
+        opacityOutBlurBar.value = 0;
+      } else if (y < 440) {
+        opacityInBlurBar.value = 0;
+        opacityOutBlurBar.value = 1;
       }
 
-      if (y <= Y_TARGET && y >= HALF_Y_TARGET) {
-        let ceroOne = (y - HALF_Y_TARGET) / HALF_Y_TARGET;
-        opacityIn.value = ceroOne;
-      } else if (y < HALF_Y_TARGET) {
-        opacityIn.value = 0;
+      if (y >= Y_TARGET && snapInterval.value !== 0) {
+        snapInterval.value = 0;
+        // runOnJS(setEnableLayout)(true);
       }
-      if (y <= Y_TARGET && y >= 230) {
-        let ceroOne = (y - 230) / (Y_TARGET - 230);
-        opacityIn3.value = ceroOne;
-      } else if (y < 230) {
-        opacityIn3.value = 0;
+      if (y < Y_TARGET && snapInterval.value === 0) {
+        snapInterval.value = Y_TARGET;
+        // runOnJS(setEnableLayout)(false);
       }
-
-      if (y <= 150 && y >= 0) {
-        let ceroOne = 1 - y / 150;
-        opacityOut3.value = ceroOne;
-      } else if (y > 150) {
-        opacityOut3.value = 0;
-      }
-      if (y < 0) {
-        topContainerHeight.value = 0;
-        opacityIn2.value = 0;
-        opacityOut2.value = 1;
-        opacityOut.value = 1;
-        opacityOut3.value = 1;
-        gradientOpacity.value = 1;
-      } else if (y > Y_TARGET) {
-        topContainerHeight.value = 1;
-        opacityIn2.value = 1;
-        opacityOut2.value = 0;
-        opacityIn.value = 1;
-        opacityIn3.value = 1;
-      }
-    }
-
-    if (y >= 440 && y <= 500) {
-      let ceroOne = (y - 440) / 60;
-      opacityInBlurBar.value = ceroOne;
-      opacityOutBlurBar.value = 1 - ceroOne;
-    } else if (y > 500) {
-      opacityInBlurBar.value = 1;
-      opacityOutBlurBar.value = 0;
-    } else if (y < 440) {
-      opacityInBlurBar.value = 0;
-      opacityOutBlurBar.value = 1;
-    }
-
-    if (y >= Y_TARGET && snapInterval.value !== 0) {
-      snapInterval.value = 0;
-      // runOnJS(setEnableLayout)(true);
-    }
-    if (y < Y_TARGET && snapInterval.value === 0) {
-      snapInterval.value = Y_TARGET;
-      // runOnJS(setEnableLayout)(false);
-    }
+    },
   });
 
   const backgroundOverlayAnimatedStyle = useAnimatedStyle(() => {
@@ -721,11 +741,13 @@ export default function SerieDetails() {
                           </Animated.View>
                         )}
 
-                        <Animated.View {...(enableAnimations && { layout: Layout.springify().damping(200).stiffness(300) })}>
-                          <PostersContainer type={'posters'} imgs={movie.posters} mt={16} openPoster={handleOpenPoster} />
+                        {showLowerSections && (
+                          <Animated.View {...(enableAnimations && { layout: Layout.springify().damping(200).stiffness(300) })}>
+                            <PostersContainer type={'posters'} imgs={movie.posters} mt={16} openPoster={handleOpenPoster} />
 
-                          <PostersContainer type={'backdrops'} imgs={movie.backdrops} mt={16} openPoster={handleOpenPoster} />
-                        </Animated.View>
+                            <PostersContainer type={'backdrops'} imgs={movie.backdrops} mt={16} openPoster={handleOpenPoster} />
+                          </Animated.View>
+                        )}
                       </View>
 
                       <Animated.View style={[sectionStyle.buttonsContainer, { top: windowHeight * 0.25, opacity: opacityOut }]}></Animated.View>
