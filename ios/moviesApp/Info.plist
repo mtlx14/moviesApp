@@ -27,7 +27,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>moviesApp</string>
+          <string>moviesapp</string>
           <string>com.matialex14.moviesApp</string>
         </array>
       </dict>
@@ -55,8 +55,8 @@
     <array>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
     </array>
-    <key>RCTNewArchEnabled</key>
-    <true/>
+    <key>RCTMetroPort</key>
+    <string>$(RCT_METRO_PORT)</string>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>

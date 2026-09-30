@@ -81,7 +81,7 @@ function RenderProvider({ platforms, movieTitle }) {
 const ProviderContainer = memo(({ provider, providerType, movieTitle, addStyle }) => {
   let title = '';
   let platforms = [];
-  console.log(provider);
+  // console.log(provider);
 
   if (providerType === 'google') {
     title = 'Buscar en:';

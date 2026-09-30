@@ -18,14 +18,16 @@ import Animated, { runOnUI, useAnimatedStyle, useSharedValue, withSpring, withTi
 import * as Haptics from 'expo-haptics';
 
 import { styles } from '../style';
-import { useIsFocused } from '@react-navigation/core';
+import { useIsFocused } from 'expo-router';
 import { FlashList } from '@shopify/flash-list';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const windowHeight = Dimensions.get('window').height;
 
 export function SectionNew() {
   const sectionStyle = styles.sectionNew;
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [movies, setMovies] = useState(null);
   const [hideMovies, setHideMovies] = useState(null);
   const [moviesToShow, setMoviesToShow] = useState([]);
@@ -106,9 +108,10 @@ export function SectionNew() {
     setLoading(false);
   };
 
-  const openMovie = ({ movie_id }) => {
+  const openMovie = ({ movie_id, poster }) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    router.push(`new/${moviesOrSeries == 'movies' ? 'screenMovieDetails' : 'screenSerieDetails'}/${movie_id}`);
+    // se pasa el póster de la lista para usarlo desenfocado mientras carga el detalle
+    router.push(`new/${moviesOrSeries == 'movies' ? 'screenMovieDetails' : 'screenSerieDetails'}/${movie_id}?placeholder=${encodeURIComponent(poster || '')}&placeholderLib=rn`);
   };
 
   useEffect(() => {
@@ -155,7 +158,7 @@ export function SectionNew() {
   return (
     <>
       <MainFrame style={{ flex: 1, height: windowHeight }}>
-        <TitleType1 addStyle={{ marginBottom: 10, marginTop: 20 }}>{moviesOrSeries == 'movies' ? 'Nuevas películas:' : 'Series en Emisión'}</TitleType1>
+        <TitleType1 addStyle={{ marginBottom: 10, marginTop: insets.top + 20 }}>{moviesOrSeries == 'movies' ? 'Nuevas películas:' : 'Series en Emisión'}</TitleType1>
 
         {moviesToShow.length > 0 ? (
           <View style={{ flex: 1, width: '96%', alignSelf: 'center', height: windowHeight }}>
@@ -176,7 +179,7 @@ export function SectionNew() {
                 return (
                   <>
                     {isFocused && (
-                      <Pressable style={{ margin: 5 }} onPress={() => openMovie({ movie_id: item.id })}>
+                      <Pressable style={{ margin: 5 }} onPress={() => openMovie({ movie_id: item.id, poster: item.poster })}>
                         <Animated.View
                           style={{
                             backgroundColor: 'rgba(1,1,1,0.2)',

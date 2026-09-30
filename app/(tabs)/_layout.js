@@ -13,6 +13,7 @@ const Layout = () => {
       <Tabs.Screen name="movie" />
       <Tabs.Screen name="search" />
       <Tabs.Screen name="serie" />
+      <Tabs.Screen name="user" />
     </Tabs>
   );
 };

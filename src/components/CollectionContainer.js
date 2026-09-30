@@ -6,7 +6,7 @@ import { TagType2 } from './TagType2.js';
 import { TagType1 } from './TagType1.js';
 import { RatingStars } from './RatingStars.js';
 import { memo, use, useEffect, useRef, useState } from 'react';
-import Animated, { interpolate, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { interpolate, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
 import { useDataCollection } from '../contextCollection.js';
 import { ButtonsMovieAdmin_2 } from './ButtonsMovieAdmin_2.js';
 import { fetchMovieCollection, fetchMovieDirectorMovies, fetchMovieRelatedMovies } from '../tmdb.js';
@@ -31,7 +31,8 @@ function DotsToRender({ scrollX, i }) {
   return <Animated.Image key={i} source={require('../../assets/images/icon--dot.png')} style={[{ width: 5, height: 5, opacity: 0.4 }, dotStylez]}></Animated.Image>;
 }
 
-const CollectionContainer = memo(({ type, mt, movie, enableEntering }) => {
+// Recibe solo sus películas y su nombre (no la película completa) para no redibujarse cada vez que llega otro dato
+const CollectionContainer = memo(({ type, mt, movies, name, enableEntering }) => {
   const router = useRouter();
   const pathname = usePathname();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -48,18 +49,8 @@ const CollectionContainer = memo(({ type, mt, movie, enableEntering }) => {
   }, [getMoviesDB]);
 
   useEffect(() => {
-    if (type === 'Colección') {
-      cMovies.current.push(...movie.collectionMovies);
-      cName.current = movie.collectionName;
-    }
-    if (type === 'Director') {
-      cMovies.current.push(...movie.directorMovies);
-      cName.current = movie.director[0].name;
-    }
-    if (type === 'Relacionados') {
-      cMovies.current.push(...movie.relatedMovies);
-      cName.current = 'Te puede interesar';
-    }
+    cMovies.current.push(...movies);
+    cName.current = type === 'Relacionados' ? 'Te puede interesar' : name;
 
     setVisibleData(cMovies.current.slice(0, 2));
   }, []);
@@ -102,9 +93,10 @@ const CollectionContainer = memo(({ type, mt, movie, enableEntering }) => {
     }
   });
 
-  const handleOnPress = ({ movie_id }) => {
+  const handleOnPress = ({ movie_id, poster }) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    router.push(`${pathname.split('/')[1]}/screenMovieDetails/${movie_id}`);
+    // se pasa el póster de la lista para usarlo desenfocado mientras carga el detalle
+    router.push(`${pathname.split('/')[1]}/screenMovieDetails/${movie_id}?placeholder=${encodeURIComponent(poster || '')}&placeholderLib=expo`);
   };
 
   const moviesToRender = [];
@@ -209,7 +201,7 @@ const CollectionContainer = memo(({ type, mt, movie, enableEntering }) => {
                 windowSize={2}
                 removeClippedSubviews={true}
                 renderItem={({ item, index }) => (
-                  <Pressable style={{ width: windowWidth, paddingHorizontal: 35 }} onPress={() => handleOnPress({ movie_id: item.id })}>
+                  <Pressable style={{ width: windowWidth, paddingHorizontal: 35 }} onPress={() => handleOnPress({ movie_id: item.id, poster: item.poster })}>
                     <Image source={{ uri: item.poster }} style={{ height: 160, width: 105, borderRadius: 8 }} onLoad={index === 0 ? handleStartImageLoad : null} />
                     <View
                       style={{
@@ -237,4 +229,22 @@ const CollectionContainer = memo(({ type, mt, movie, enableEntering }) => {
 });
 
 CollectionContainer.displayName = 'CollectionContainer';
-export { CollectionContainer };
+// Recuadro que reserva el espacio de la fila mientras carga, para que lo de abajo no se mueva al llegar
+const CollectionPlaceholder = memo(({ type, mt }) => {
+  const pulse = useSharedValue(0.5);
+  useEffect(() => {
+    pulse.value = withRepeat(withTiming(1, { duration: 800 }), -1, true);
+  }, []);
+  const pulseStyle = useAnimatedStyle(() => ({ opacity: pulse.value }));
+
+  // mismas alturas que la fila real (incluyen el margen superior)
+  const height = type === 'Relacionados' ? 235 : 248;
+  return (
+    <View style={{ width: '100%', height }}>
+      <Animated.View style={[{ marginTop: mt, marginHorizontal: 20, flex: 1, borderRadius: 12, backgroundColor: 'rgba(1,1,1,.1)' }, pulseStyle]} />
+    </View>
+  );
+});
+CollectionPlaceholder.displayName = 'CollectionPlaceholder';
+
+export { CollectionContainer, CollectionPlaceholder };

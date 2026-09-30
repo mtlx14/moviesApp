@@ -59,7 +59,7 @@ import { ButtonsEpisodes } from '../components/ButtonsEpisodes';
 import { EpisodesModal } from '../components/EpisodesModal';
 import { SerieModalPoster } from '../components/SerieModalPoster';
 import { SerieRatingModal } from '../components/SerieRatingModal';
-import { useIsFocused } from '@react-navigation/core';
+import { useIsFocused } from 'expo-router';
 import { NextEpisodeSerie } from '../components/NextEpisodeSerie';
 
 const openTrailer = async (trailerLink) => {
@@ -76,7 +76,8 @@ const openTrailer = async (trailerLink) => {
   console.error('No se pudo abrir el enlace');
 };
 export default function SerieDetails() {
-  const { id } = useLocalSearchParams();
+  // placeholder: imagen que ya se vio en la lista (en caché); placeholderLib: componente que la mostró
+  const { id, placeholder, placeholderLib } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const sectionStyle = styles.sectionNewMovieDetails;
   const [movie, setMovie] = useState([]);
@@ -117,6 +118,7 @@ export default function SerieDetails() {
       }));
     } catch (err) {
       console.error(`Error obteniendo ratings`, err);
+      setMovie((prev) => ({ ...prev, otherRatings: [] }));
     }
   };
 
@@ -152,6 +154,10 @@ export default function SerieDetails() {
   const callFunctions = useRef(false);
 
   useEffect(() => {
+    // sin imdb_id no se pueden pedir ratings: se marca "sin ratings" para que no queden cargando
+    if (movie?.id && !movie?.imdb_id && movie.otherRatings == null) {
+      setMovie((prev) => ({ ...prev, otherRatings: [] }));
+    }
     if (!movie?.imdb_id) return;
 
     if (callFunctions.current === false) {
@@ -235,8 +241,10 @@ export default function SerieDetails() {
 
   const Y_TARGET = 297;
   const HALF_Y_TARGET = 297 / 2;
+  const scrollY = useSharedValue(0);
   const handleScroll = useAnimatedScrollHandler((e) => {
     const { y } = e.contentOffset;
+    scrollY.value = y;
 
     if (y <= 500) {
       if (y <= Y_TARGET && y >= 0) {
@@ -269,10 +277,10 @@ export default function SerieDetails() {
         opacityIn3.value = 0;
       }
 
-      if (y <= 80 && y >= 0) {
-        let ceroOne = 1 - y / 80;
+      if (y <= 150 && y >= 0) {
+        let ceroOne = 1 - y / 150;
         opacityOut3.value = ceroOne;
-      } else if (y > 80) {
+      } else if (y > 150) {
         opacityOut3.value = 0;
       }
       if (y < 0) {
@@ -311,6 +319,15 @@ export default function SerieDetails() {
       snapInterval.value = Y_TARGET;
       // runOnJS(setEnableLayout)(false);
     }
+  });
+
+  const backgroundOverlayAnimatedStyle = useAnimatedStyle(() => {
+    const y = scrollY.value;
+    return {
+      opacity: Math.min(Math.max(y / Y_TARGET, 0), 1),
+      // se mueve con el scroll para quedar fija en pantalla
+      transform: [{ translateY: Math.max(y, 0) }],
+    };
   });
 
   const topContainerHeightAnimatedStyle = useAnimatedStyle(() => {
@@ -397,7 +414,7 @@ export default function SerieDetails() {
         {isFocused && (
           <Animated.View exiting={FadeOut.springify().damping(80).stiffness(50).delay(500)} entering={FadeIn.springify().damping(80).stiffness(50)}>
             {!openPoster.open && (
-              <View style={{ position: 'absolute', top: insets.top - 5, left: 20, zIndex: 10 }}>
+              <View style={{ position: 'absolute', top: insets.top - 20, left: 20, zIndex: 10 }}>
                 <ButtonGoBack
                   opacityBlur={opacityOutBlurBar}
                   onPress={() => {
@@ -410,17 +427,15 @@ export default function SerieDetails() {
             <MainFrame>
               {movie.id && (
                 <>
-                  <View style={{ width: '100%', height: windowHeight, position: 'absolute' }}>
-                    {<BackgroundImg defaultImg={movie.backdrop} initialMovieDB={serieDB} useData={useDataSerie} />}
-                    <BlurView intensity={100} style={[sectionStyle.fondoBlur, { height: windowHeight * 2 }]}></BlurView>
-                  </View>
                   <View style={[sectionStyle.sliderFrame, { height: windowHeight }]}>
                     <Animated.ScrollView
                       contentOffset={{ x: 0, y: scrollBeforeUnmount.current }}
                       ref={scrollViewRef}
                       onScroll={handleScroll}
                       scrollEventThrottle={16}
-                      snapToInterval={snapInterval}
+                      // único punto de detención en 297; pasado ese punto el scroll queda libre (entre 0 y 297 siempre termina en uno de los dos)
+                      snapToOffsets={[297]}
+                      snapToEnd={false}
                       disableIntervalMomentum={true}
                       contentContainerStyle={{ paddingBottom: windowHeight * 0.2 + 15 }}
                     >
@@ -432,7 +447,7 @@ export default function SerieDetails() {
                           position: 'absolute',
                         }}
                       >
-                        <BackdropImg defaultImg={movie.backdrop} initialMovieDB={serieDB} useData={useDataSerie} />
+                        <BackdropImg defaultImg={movie.backdrop} initialMovieDB={serieDB} useData={useDataSerie} placeholderImg={placeholder} placeholderLib={placeholderLib} />
                       </Animated.View>
 
                       <Animated.View style={{ opacity: gradientOpacity }}>
@@ -469,6 +484,12 @@ export default function SerieDetails() {
                         ></LinearGradient>
                         <View style={{ width: windowWidth, position: 'absolute', height: windowHeight * 0.5, top: windowHeight * 0.5, backgroundColor: 'rgb(20,20,20)' }}></View>
                         <View style={{ width: '100%', height: 2000, position: 'absolute', top: windowHeight, backgroundColor: 'rgba(20,20,20,1)', opacity: 1 }}></View>
+                      </Animated.View>
+
+                      {/* Fondo borroso sobre la foto y el degradado: se vuelve sólido hasta el punto de detención */}
+                      <Animated.View pointerEvents="none" style={[{ width: '100%', height: windowHeight, position: 'absolute', top: 0 }, backgroundOverlayAnimatedStyle]}>
+                        <BackgroundImg defaultImg={movie.backdrop} initialMovieDB={serieDB} useData={useDataSerie} />
+                        <BlurView intensity={100} style={[sectionStyle.fondoBlur, { height: windowHeight }]}></BlurView>
                       </Animated.View>
 
                       <View style={{ top: windowHeight * 0.35 - 23 }}>
@@ -713,11 +734,9 @@ export default function SerieDetails() {
                     </Animated.ScrollView>
                   </View>
 
-                  <Animated.View
-                    style={{ height: windowHeight * 0.105, width: '100%', position: 'absolute', top: 0, left: 0, opacity: opacityInBlurBar, alignItems: 'center', justifyContent: 'flex-end' }}
-                  >
+                  <Animated.View style={{ height: insets.top + 24, width: '100%', position: 'absolute', top: 0, left: 0, opacity: opacityInBlurBar, alignItems: 'center', justifyContent: 'flex-end' }}>
                     <BlurView intensity={50} style={{ height: '100%', width: '100%', position: 'absolute' }}></BlurView>
-                    <TextType1 addStyle={{ marginBottom: 5, fontSize: 18 }}>{movie.title}</TextType1>
+                    <TextType1 addStyle={{ marginBottom: 9, fontSize: 18 }}>{movie.title}</TextType1>
                   </Animated.View>
 
                   {openPoster.open && <SerieModalPoster data={openPoster} openPoster={handleOpenPoster} />}

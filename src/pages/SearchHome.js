@@ -86,12 +86,13 @@ export default function SearchHome() {
     });
   };
 
-  const openMovie = ({ movie_id, type }) => {
+  const openMovie = ({ movie_id, type, poster }) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     if (type == 'movie') {
-      router.push(`${pathname.split('/')[1]}/screenMovieDetails/${movie_id}`);
+      // se pasa el póster de la lista para usarlo desenfocado mientras carga el detalle
+      router.push(`${pathname.split('/')[1]}/screenMovieDetails/${movie_id}?placeholder=${encodeURIComponent(poster || '')}&placeholderLib=expo`);
     } else if (type == 'serie') {
-      router.push(`${pathname.split('/')[1]}/screenSerieDetails/${movie_id}`);
+      router.push(`${pathname.split('/')[1]}/screenSerieDetails/${movie_id}?placeholder=${encodeURIComponent(poster || '')}&placeholderLib=expo`);
     } else if (type == 'person') {
       router.push(`${pathname.split('/')[1]}/screenCastDetails/${movie_id}`);
     }
@@ -110,7 +111,7 @@ export default function SearchHome() {
         }}
         numColumns={3}
         renderItem={({ item }) => (
-          <Pressable style={{ width: '30%', margin: `${10 / 6}%` }} onPress={() => openMovie({ movie_id: item.id, type: item.type })} key={`${(item.id, item.type)}`}>
+          <Pressable style={{ width: '30%', margin: `${10 / 6}%` }} onPress={() => openMovie({ movie_id: item.id, type: item.type, poster: item.poster })} key={`${(item.id, item.type)}`}>
             <Animated.View
               style={{
                 backgroundColor: 'rgba(1,1,1,0.2)',

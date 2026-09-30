@@ -7,7 +7,7 @@ import Animated, { FadeInDown, LinearTransition, useAnimatedStyle, useSharedValu
 import * as Haptics from 'expo-haptics';
 import { usePathname, useRouter } from 'expo-router';
 import { useDataLists } from '../contextLists';
-import { useIsFocused } from '@react-navigation/core';
+import { useIsFocused } from 'expo-router';
 import { Asset } from 'expo-asset';
 import { BookmarkerFullIcon, CheckIcon, HeartFullIcon } from '../SVGS';
 
@@ -149,12 +149,13 @@ const CastMovies = memo(({ movies, type, watchedMovies, prevWatchedMovies }) => 
     setMoviesOpen((prev) => !prev);
   };
 
-  const handleOnPress = ({ movie_id }) => {
+  const handleOnPress = ({ movie_id, poster }) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     if (type === 'series') {
-      router.push(`${pathname.split('/')[1]}/screenSerieDetails/${movie_id}`);
+      router.push(`${pathname.split('/')[1]}/screenSerieDetails/${movie_id}?placeholder=${encodeURIComponent(poster || '')}&placeholderLib=expo`);
     } else {
-      router.push(`${pathname.split('/')[1]}/screenMovieDetails/${movie_id}`);
+      // se pasa el póster de la lista para usarlo desenfocado mientras carga el detalle
+      router.push(`${pathname.split('/')[1]}/screenMovieDetails/${movie_id}?placeholder=${encodeURIComponent(poster || '')}&placeholderLib=expo`);
     }
   };
 
@@ -189,7 +190,7 @@ const CastMovies = memo(({ movies, type, watchedMovies, prevWatchedMovies }) => 
           renderItem={({ item, index }) => (
             <Pressable
               onPress={() => {
-                handleOnPress({ movie_id: item.id });
+                handleOnPress({ movie_id: item.id, poster: `https://image.tmdb.org/t/p/w92${item.poster_path}` });
               }}
             >
               <Animated.View

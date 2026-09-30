@@ -6,8 +6,8 @@ import { memo, useEffect, useState } from 'react';
 import { useDataMovie } from '../contextMovie';
 import { TextType1 } from './TextType1';
 import { useLocalSearchParams, useNavigation, usePathname, useRouter, useSegments } from 'expo-router';
-import { useNavigationState } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
+import { useAuth } from '../contextAuth';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -43,6 +43,7 @@ const MainMenuItem = memo(({ item, lastRoutes, changeIndicatorMargin }) => {
   const router = useRouter();
   const pathname = usePathname();
   const segments = useSegments();
+  const { user, notifyBlocked } = useAuth();
 
   const onSameTab = item.substring(0, 3) === pathname.substring(1, 4);
 
@@ -50,6 +51,13 @@ const MainMenuItem = memo(({ item, lastRoutes, changeIndicatorMargin }) => {
   const img = onSameTab ? icons.select[item] : icons.no_select[item];
 
   const handlePress = () => {
+    // Sin sesión solo se puede usar Perfil
+    if (!user && item !== 'user') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      notifyBlocked();
+      return;
+    }
+
     let currentRoute = `/${segments.join('/')}`;
 
     const routeParams = currentRoute?.params;
@@ -114,50 +122,32 @@ const MainMenu = memo(() => {
   });
 
   const segments = useSegments();
-  const navigationState = useNavigationState((state) => state);
+  const pathname = usePathname();
 
   const [lastRoutes, setLastRoutes] = useState({
     new: '/new',
     movie: '/movie',
     search: '/search',
     serie: '/serie',
+    user: '/user',
   });
 
   useEffect(() => {
     if (segments?.length > 0) {
-      if (navigationState) {
-        let route = `/${segments.join('/')}`;
-
-        let currentRoute = navigationState.routes?.[navigationState.index];
-
-        while (currentRoute?.state) {
-          const nestedRoute = currentRoute.state.routes?.[currentRoute.state.index];
-          if (nestedRoute) {
-            currentRoute = nestedRoute;
-          } else {
-            break;
-          }
-        }
-
-        const routeParams = currentRoute?.params;
-        if (routeParams?.id) {
-          route = route.replace('[id]', routeParams.id);
-        }
-
-        let routName = segments[0];
-        if (segments[0] === '(tabs)') {
-          routName = segments[1];
-          route = route.replace('/(tabs)', '');
-        }
-        setLastRoutes((prev) => ({
-          ...prev,
-          [routName]: route,
-        }));
-      } else {
-        console.warn('No se pudo determinar la ruta actual.');
+      let routName = segments[0];
+      if (segments[0] === '(tabs)') {
+        routName = segments[1];
+      }
+      setLastRoutes((prev) => ({
+        ...prev,
+        [routName]: pathname,
+      }));
+      // Mantiene el indicador bajo la pestaña actual (ej. al abrir la app directo en Perfil)
+      if (items.includes(routName)) {
+        changeIndicatorMargin({ _value: routName });
       }
     }
-  }, [navigationState]);
+  }, [pathname]);
 
   for (let i = 0; i < items.length; i++) {
     itemsRender.push(<MainMenuItem key={i} item={items[i]} lastRoutes={lastRoutes} changeIndicatorMargin={changeIndicatorMargin} />);

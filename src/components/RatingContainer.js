@@ -3,18 +3,38 @@ import { Dimensions, View, Image, ScrollView, Text } from 'react-native';
 import { TextType1 } from './TextType1';
 import { TextType2 } from './TextType2';
 import { useRef, memo, useCallback, useState, useEffect } from 'react';
-import Animated, { FadeInDown, FadeInRight, interpolate, LinearTransition, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, {
+  FadeInDown,
+  FadeInRight,
+  interpolate,
+  LinearTransition,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { constantsAndInfo } from '../constantsAndInfo';
 import { fetchMovieRatings } from '../tmdb';
 
 const RatingContainer = memo(({ addStyle, ratings, containerStyle, heightValue }) => {
   const ratingsOrder = [];
-  const heightMax = useSharedValue(ratings?.length > 0 ? 48 : 0);
+  // null/undefined = todavía cargando: se reserva el espacio para que lo de abajo no salte al llegar
+  const loading = ratings == null;
+  const heightMax = useSharedValue(loading || ratings.length > 0 ? 48 : 0);
   useEffect(() => {
-    const newHeight = ratings?.length > 0 ? 48 : 0;
+    const newHeight = loading || ratings.length > 0 ? 48 : 0;
     heightMax.value = withTiming(newHeight, { duration: 500 });
   }, [ratings]);
+
+  // brillo suave de las cajitas mientras cargan
+  const pulse = useSharedValue(0.5);
+  useEffect(() => {
+    if (loading) pulse.value = withRepeat(withTiming(1, { duration: 800 }), -1, true);
+  }, [loading]);
+  const pulseStyle = useAnimatedStyle(() => ({ opacity: pulse.value }));
 
   const ratingsHeightAnimatedStyle = useAnimatedStyle(() => {
     return {
@@ -55,9 +75,11 @@ const RatingContainer = memo(({ addStyle, ratings, containerStyle, heightValue }
     );
   }
 
+  const loadingBoxes = [0, 1, 2].map((i) => <Animated.View key={i} style={[{ flex: 1, backgroundColor: 'rgba(255,255,255,.1)', height: 40, borderRadius: 5 }, pulseStyle]} />);
+
   return (
     <Animated.View style={[containerStyle, ratingsHeightAnimatedStyle, { overflow: 'hidden' }]}>
-      <View style={{ flexDirection: 'row', width: '100%', gap: '2%', paddingTop: 8 }}>{renderRatings}</View>
+      <View style={{ flexDirection: 'row', width: '100%', gap: '2%', paddingTop: 8 }}>{loading ? loadingBoxes : renderRatings}</View>
     </Animated.View>
   );
 });

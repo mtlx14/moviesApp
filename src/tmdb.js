@@ -554,9 +554,9 @@ export const fetchMovieDetails = async ({ movieId }) => {
 
     // const posters = [...data['images?include_image_language=en'].posters, ...data['images?include_image_language=null'].posters];
     // const backdrops = [...data['images?include_image_language=null'].backdrops];
-    const posters = [...data.images.posters, ...data.images.posters];
+    const posters = data.images.posters;
     const backdrops = [...data.images.backdrops];
-    console.log('p', posters);
+    // console.log('p', posters);
     for (let i = 0; i < posters.length && movie.posters.length < 20; i++) {
       movie.posters.push(`${imgBaseURL}${imgSize}${posters[i].file_path}`);
     }
@@ -623,7 +623,7 @@ export const fetchMovieRatings = async ({ movie }) => {
         const new_title = movie?.alternative_titles.find((title) => title.iso_3166_1 === 'US')?.title;
 
         if (new_title) {
-          console.log('new title: sssss ', new_title, year);
+          // console.log('new title: sssss ', new_title, year);
           for (let i = 0; i < years.length; i++) {
             const responseOMDB_2 = await fetch(`https://www.omdbapi.com/?t=${new_title?.toLowerCase().replace(' ', '_').replace(':', '').replace('the movie', '')}&y=${years[i]}&apikey=${apiKeyOMDB}`);
             const dataOMDB_2 = await responseOMDB_2.json();
@@ -898,7 +898,7 @@ export const fetchMovieDirectorMovies = async ({ movieId, directorId }) => {
 };
 
 export const fetchMovieRelatedMovies = async ({ movieId, collection }) => {
-  console.log('ss', movieId);
+  // console.log('ss', movieId);
   const imgBaseURL = 'https://image.tmdb.org/t/p/';
   const imgSize = 'w342';
 
@@ -1000,14 +1000,14 @@ export const firebasePLaylistMovies = async ({ item, startIndex = 0, limit = 8 }
       movie_ids = docSnap.data();
       cant = movie_ids.tmdb_id.length;
     } else {
-      console.log('El documento no existe.', item);
+      // console.log('El documento no existe.', item);
     }
   } catch (error) {
     console.error('Error al obtener el documento:', error);
   }
 
   if (!movie_ids || !movie_ids.imdbId || !movie_ids.tmdb_id) {
-    console.log('No hay IDs de películas para procesar.');
+    // console.log('No hay IDs de películas para procesar.');
     return [];
   }
 
@@ -1071,7 +1071,7 @@ export const firebasePLaylistMovies = async ({ item, startIndex = 0, limit = 8 }
                 lastListChangeDate: lastListChangeDate || null,
               };
             } else {
-              console.log(`No se encontraron datos adicionales en Firebase para la película con ID: ${movie_id}`);
+              // console.log(`No se encontraron datos adicionales en Firebase para la película con ID: ${movie_id}`);
               return movieDetails;
             }
           } else {
@@ -1360,7 +1360,7 @@ export const fetchSerieDetails = async ({ movieId }) => {
 
   try {
     const response = await fetch(
-      `https://api.themoviedb.org/3/tv/${movieId}?append_to_response=external_ids%2Calternative_titles%2Ctranslations%2Crelease_dates%2Cwatch/providers%2Cvideos%2Ccredits%2Caggregate_credits%2Csimilar%2Ccontent_ratings%2Cimages?include_image_language=en%2Cimages?include_image_language=null&language=en-US`,
+      `https://api.themoviedb.org/3/tv/${movieId}?append_to_response=external_ids%2Calternative_titles%2Ctranslations%2Crelease_dates%2Cwatch/providers%2Cvideos%2Ccredits%2Caggregate_credits%2Csimilar%2Ccontent_ratings%2Cimages&include_image_language=en,null&language=en-US`,
       options,
     );
 
@@ -1544,8 +1544,10 @@ export const fetchSerieDetails = async ({ movieId }) => {
     // console.log('f');
     // ------ images ------
 
-    const posters = [...data['images?include_image_language=en'].posters, ...data['images?include_image_language=null'].posters];
-    const backdrops = [...data['images?include_image_language=null'].backdrops];
+    // TMDB ya no devuelve los bloques 'images?include_image_language=...': ahora todo viene en data.images
+    const posters = data.images.posters;
+    // solo fondos sin idioma (sin texto), como antes
+    const backdrops = data.images.backdrops.filter((item) => item.iso_639_1 === null);
 
     for (let i = 0; i < posters.length && movie.posters.length < 20; i++) {
       movie.posters.push(`${imgBaseURL}${imgSize}${posters[i].file_path}`);
@@ -1575,14 +1577,14 @@ export const firebasePLaylistSeries = async ({ item, startIndex = 0, limit = 8 }
     if (docSnap.exists()) {
       movie_ids = docSnap.data();
     } else {
-      console.log('El documento no existe.', use_item);
+      // console.log('El documento no existe.', use_item);
     }
   } catch (error) {
     console.error('Error al obtener el documento:', error);
   }
 
   if (!movie_ids || !movie_ids.imdbId || !movie_ids.tmdb_id) {
-    console.log('No hay IDs de películas para procesar.');
+    // console.log('No hay IDs de películas para procesar.');
     return [];
   }
 
@@ -1690,7 +1692,7 @@ export const firebasePLaylistSeries = async ({ item, startIndex = 0, limit = 8 }
                 };
               }
             } else {
-              console.log(`No se encontraron datos adicionales en Firebase para la película con ID: ${movie_id}`);
+              // console.log(`No se encontraron datos adicionales en Firebase para la película con ID: ${movie_id}`);
               return movieDetails;
             }
           } else {

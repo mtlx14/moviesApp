@@ -16,7 +16,7 @@ import { CastAwardsContainer } from '../components/CastAwardsContainer';
 import { CastMovies } from '../components/CastMovies';
 import { arrayRemove, arrayUnion, doc, getDoc, setDoc } from 'firebase/firestore';
 import { DataProviderLists, useDataLists } from '../contextLists';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused } from 'expo-router';
 import { BookmarkerEmptyIcon, BookmarkerFullIcon } from '../SVGS';
 import db from '../conection.js';
 import * as Haptics from 'expo-haptics';
@@ -150,7 +150,7 @@ export default function CastDetails() {
 
   return (
     <>
-      <View style={{ position: 'absolute', top: insets.top - 5, left: 20, zIndex: 10 }}>
+      <View style={{ position: 'absolute', top: insets.top - 20, left: 20, zIndex: 10 }}>
         <ButtonGoBack
           opacityBlur={opacityOutBlurBar}
           onPress={() => {

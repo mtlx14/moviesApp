@@ -8,7 +8,8 @@ import { FlashList } from '@shopify/flash-list';
 import { Image } from 'expo-image';
 
 function Poster({ img, i, type, openPoster }) {
-  const img_url = type === 'posters' ? img.replace('original', 'w500') : type === 'backdrops' && img.replace('original', 'w780');
+  // tamaño justo para cada miniatura en pantalla 3x: pósters 105pt → w342, fondos 300pt → w1280
+  const img_url = type === 'posters' ? img.replace('original', 'w342') : type === 'backdrops' && img.replace('original', 'w1280');
 
   const itemWidth = type === 'posters' ? 105 : 300;
 

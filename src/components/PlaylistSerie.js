@@ -13,7 +13,7 @@ import { TextType2 } from './TextType2';
 import { router, usePathname, useRouter } from 'expo-router';
 import { firebasePLaylistMovies, firebasePLaylistSeries } from '../tmdb';
 import { ActivityIndicator } from 'react-native';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused } from 'expo-router';
 import { FlashList } from '@shopify/flash-list';
 
 const windowWidth = Dimensions.get('window').width;
@@ -153,7 +153,7 @@ const PlaylistSerie = memo(({ item, isActive }) => {
                       marginHorizontal: 6,
                       marginBottom: 12,
                     }}
-                    onPress={() => router.push(`serie/screenSerieDetails/${item.id}`)}
+                    onPress={() => router.push(`serie/screenSerieDetails/${item.id}?placeholder=${encodeURIComponent(item?.lq_fixedBackdrop || item.lq_backdrop || '')}&placeholderLib=expo`)}
                   >
                     <View style={{ width: 1, height: ((windowWidth - 30 - 12) / 2) * 0.7 }}>
                       {isFocused && (

@@ -3,13 +3,13 @@ import { TextType1 } from './TextType1';
 import { Pressable, View } from 'react-native';
 import { TextType2 } from './TextType2';
 import { Image } from 'expo-image';
-import Animated, { FadeInDown, FadeInLeft, interpolate, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeInLeft, interpolate, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { usePathname, useRouter } from 'expo-router';
 import { useDataLists } from '../contextLists';
 const MovieAwards = memo(({ awards = [], heightValue, animated_opacity }) => {
   const [nominationsOpen, setNominationsOpen] = useState(false);
-  console.log('heightValue', heightValue.value);
+  // console.log('heightValue', heightValue.value);
 
   const awardsWon = useMemo(() => {
     return awards.filter((item) => item.type == 'Won');
@@ -41,9 +41,15 @@ const MovieAwards = memo(({ awards = [], heightValue, animated_opacity }) => {
     height_nominations.value = withSpring(nextHeight, { duration: 1000, dampingRatio: 1.2 });
   };
 
+  // al aparecer, el bloque crece suave desde 0 en vez de aparecer de golpe
+  const appear = useSharedValue(0);
+  useEffect(() => {
+    appear.value = withTiming(1, { duration: 500 });
+  }, []);
+
   const awardsHeightAnimatedStyle = useAnimatedStyle(() => {
     return {
-      height: interpolate(heightValue.value, [0, 1], [0, height_nominations.value + 10 + (heights.length > 2 ? 30 : 0)]),
+      height: interpolate(heightValue.value, [0, 1], [0, height_nominations.value + 10 + (heights.length > 2 ? 30 : 0)]) * appear.value,
     };
   });
 

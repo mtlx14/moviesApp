@@ -11,7 +11,7 @@ const ButtonGoBack = memo(({ onPress, opacityBlur = 1 }) => {
       <Animated.View
         style={{
           opacity: opacityBlur,
-          ...StyleSheet.absoluteFillObject,
+          ...StyleSheet.absoluteFill,
           backgroundColor: 'rgba(255,255,255,0.3)',
         }}
       >

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import db from './conection';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from 'expo-router';
 
 const DataContext = createContext();
 
