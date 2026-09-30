@@ -25,6 +25,7 @@
       "expo-router",
       "expo-image",
       "expo-status-bar",
+      "./plugins/withSceneLifecycle",
       [
         "expo-splash-screen",
         {
