@@ -4,6 +4,7 @@ import { TextType1 } from './TextType1';
 import { TextType2 } from './TextType2';
 import { memo } from 'react';
 import { constantsAndInfo } from '../constantsAndInfo';
+import { getMyProviders } from '../myProviders';
 
 const providerNames = constantsAndInfo.providersNames;
 const logosSrc = {
@@ -96,8 +97,8 @@ const ProviderContainer = memo(({ provider, providerType, movieTitle, addStyle }
 
     let newProvider = [];
 
-    if (constantsAndInfo.myProviders.some((str) => provider.includes(str))) {
-      newProvider = constantsAndInfo.myProviders.filter((str) => provider.includes(str));
+    if (getMyProviders().some((str) => provider.includes(str))) {
+      newProvider = getMyProviders().filter((str) => provider.includes(str));
     } else {
       newProvider = provider;
     }

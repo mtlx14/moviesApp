@@ -774,7 +774,7 @@ export default function SerieDetails() {
                   />
                   {/* </Animated.View> */}
 
-                  <NotificationBubble top={55} useData={useDataSerie} />
+                  <NotificationBubble top={insets.top} useData={useDataSerie} />
                 </>
               )}
             </MainFrame>

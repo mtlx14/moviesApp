@@ -3,7 +3,7 @@ import { styles } from '../style';
 import { constantsAndInfo } from '../constantsAndInfo';
 
 const providerNames = constantsAndInfo.providersNames;
-const logosSrc = {
+export const logosSrc = {
   amazon: require('../../assets/images/logo--amazon_prime_videoWide.png'),
   apple: require('../../assets/images/logo--apple_tvWide.png'),
   cinemark: require('../../assets/images/logo--cinemarkWide.png'),
@@ -18,7 +18,7 @@ const logosSrc = {
   paramount: require('../../assets/images/logo--paramount_plus.png'),
   noImg: require('../../assets/images/icon--noImg.png'),
 };
-const backgrounds = {
+export const backgrounds = {
   amazon: 'rgba(55, 136, 235,.6)',
   apple: 'rgba(24, 24, 24, 0.5)',
   cinemark: 'rgba(219, 40, 40,.5)',

@@ -9,6 +9,9 @@ import { MainFrame } from '../components/MainFrame';
 import { TextType1 } from '../components/TextType1';
 import { TitleType1 } from '../components/TitleType1';
 import { auth } from '../conection';
+import { SubscriptionFilterModal } from '../components/SubscriptionFilterModal';
+import { saveMyProviders, useMyProviders } from '../myProviders';
+import { constantsAndInfo } from '../constantsAndInfo';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -51,6 +54,8 @@ export default function Profile() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [subscriptionsOpen, setSubscriptionsOpen] = useState(false);
+  const myProviders = useMyProviders();
 
   const handleSignIn = async () => {
     if (!email || !password) {
@@ -82,11 +87,24 @@ export default function Profile() {
       <View style={{ paddingTop: windowHeight * 0.15 + 20 }}>
         {user ? (
           <>
-            <TextType1 addStyle={{ textAlign: 'left', marginHorizontal: 25 }}>Sesión iniciada como</TextType1>
-            <TextType1 addStyle={{ textAlign: 'left', marginHorizontal: 25, marginTop: 5, fontSize: 16 }}>{user.email}</TextType1>
-            <Pressable style={buttonStyle} onPress={handleSignOut}>
-              <TextType1>Cerrar sesión</TextType1>
+            <Pressable
+              style={buttonStyle}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setSubscriptionsOpen(true);
+              }}
+            >
+              <TextType1>Mis suscripciones</TextType1>
             </Pressable>
+            <SubscriptionFilterModal
+              visible={subscriptionsOpen}
+              options={constantsAndInfo.allProviders}
+              selected={myProviders}
+              onChange={saveMyProviders}
+              onClose={() => setSubscriptionsOpen(false)}
+              title="Mis suscripciones"
+              subtitle="Selecciona las plataformas que tienes:"
+            />
           </>
         ) : (
           <>
@@ -127,6 +145,13 @@ export default function Profile() {
           </>
         )}
       </View>
+      {user && (
+        <Pressable style={{ position: 'absolute', bottom: windowHeight * 0.1 + 20, alignSelf: 'center' }} onPress={handleSignOut} hitSlop={10}>
+          <TextType1 addStyle={{ fontSize: 15, opacity: 0.6 }}>Cerrar sesión</TextType1>
+          {/* subrayado manual para poder separarlo del texto y darle transparencia */}
+          <View style={{ height: 1, marginTop: 4, backgroundColor: 'rgba(255,255,255,.25)' }} />
+        </Pressable>
+      )}
       <BlurView style={{ width: '100%', height: windowHeight * 0.15, paddingBottom: 10, position: 'absolute', justifyContent: 'flex-end' }}>
         <TitleType1 addStyle={{ marginTop: 0, marginLeft: 25 }}>Perfil</TitleType1>
       </BlurView>

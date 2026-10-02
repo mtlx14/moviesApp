@@ -21,6 +21,7 @@ class AppDelegate: ExpoAppDelegate, ExpoReactNativeFactoryProvider {
     reactNativeFactory = factory
 
     // The window is created and React Native is started by ExpoAppSceneDelegate (scene life cycle, required by iOS 27).
+
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 

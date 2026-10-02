@@ -85,9 +85,13 @@ export const constantsAndInfo = {
     'Paramount+ Amazon Channel',
     'Paramount Plus Apple TV Channel',
     'Paramount Plus Apple TV Channel ',
+    'Paramount Plus Apple TV channel',
     'Sony One Amazon Channel',
     'Universal+ Amazon Channel',
   ],
 
-  myProviders: ['Amazon Prime Video', 'Disney Plus', 'HBO Max', 'Netflix', 'Crunchyroll'],
+  // valor por defecto de mis suscripciones; la lista real vive en la db (ver src/myProviders.js)
+  myProviders: ['Amazon Prime Video', 'Disney Plus', 'HBO Max', 'Netflix', 'Crunchyroll', 'Apple TV'],
+  // suscripciones que se pueden elegir en Perfil > Mis suscripciones
+  allProviders: ['Amazon Prime Video', 'Disney Plus', 'HBO Max', 'Netflix', 'Crunchyroll', 'Apple TV', 'MUBI'],
 };

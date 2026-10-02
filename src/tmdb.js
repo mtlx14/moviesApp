@@ -1,5 +1,6 @@
 import { isDateInFuture } from './function';
 import { constantsAndInfo } from './constantsAndInfo';
+import { getMyProviders } from './myProviders';
 import { collection, doc, getDoc } from 'firebase/firestore';
 import db from './conection';
 
@@ -699,7 +700,7 @@ SELECT ?type ?awardLabel ?recipientLabel ?genderLabel ?year WHERE {
   OPTIONAL { ?awardStatement pq:P585 ?year. }
   OPTIONAL { ?recipient wdt:P21 ?gender. } 
 
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "es,en". }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "es,en,mul". }
 }
 ORDER BY ?year
 
@@ -1042,13 +1043,18 @@ export const firebasePLaylistMovies = async ({ item, startIndex = 0, limit = 8 }
               director: data.credits.crew.find((item) => item.job === 'Director')?.name || 'Desconocido',
               release_year: data.release_date.substring(0, 4),
               providers: [],
+              // solo para el filtro de playlists: proveedores actuales de la lista completa de plataformas (no se muestran como etiquetas)
+              filterProviders: [],
             };
 
             if ('CL' in provider) {
               if ('flatrate' in provider['CL']) {
                 provider['CL']['flatrate'].forEach((item) => {
-                  if (constantsAndInfo.myProviders.includes(item.provider_name)) {
+                  if (getMyProviders().includes(item.provider_name)) {
                     movieDetails.providers.push(item.provider_name);
+                  }
+                  if (getMyProviders().includes(item.provider_name) || constantsAndInfo.allProviders.includes(item.provider_name)) {
+                    movieDetails.filterProviders.push(item.provider_name);
                   }
                 });
               }
@@ -1628,7 +1634,7 @@ export const firebasePLaylistSeries = async ({ item, startIndex = 0, limit = 8 }
             if ('CL' in provider) {
               if ('flatrate' in provider['CL']) {
                 provider['CL']['flatrate'].forEach((provider) => {
-                  if (constantsAndInfo.myProviders.includes(provider.provider_name)) {
+                  if (getMyProviders().includes(provider.provider_name)) {
                     movieDetails.providers.push(provider.provider_name);
                   }
                 });

@@ -137,6 +137,7 @@ export function SectionNew() {
 
   const changeMoviesOrSeries = () => {
     setMoviesToShow([]);
+    setHasMore(true);
 
     flatListRef.current?.scrollToOffset({ animated: false, offset: 0 });
 
@@ -221,6 +222,10 @@ export function SectionNew() {
                 ) : null
               }
             />
+          </View>
+        ) : !hasMore ? (
+          <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, alignItems: 'center', justifyContent: 'center' }} pointerEvents="none">
+            <TextType1 addStyle={{ opacity: 0.6 }}>{moviesOrSeries == 'movies' ? 'No hay películas nuevas' : 'No hay series en emisión'}</TextType1>
           </View>
         ) : (
           <ActivityIndicator

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './conection';
+import { listenMyProviders } from './myProviders';
 
 const AuthContext = createContext();
 
@@ -19,6 +20,12 @@ export const AuthProvider = ({ children }) => {
     });
     return unsubscribe;
   }, []);
+
+  // mis suscripciones se leen de la db solo con sesión iniciada
+  useEffect(() => {
+    if (!user) return;
+    return listenMyProviders();
+  }, [user]);
 
   const notifyBlocked = () => setBlockedAttempts((prev) => prev + 1);
 

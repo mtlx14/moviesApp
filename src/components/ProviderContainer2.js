@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { View, Image, Pressable, Linking, ScrollView, Dimensions } from 'react-native';
 import { constantsAndInfo } from '../constantsAndInfo';
+import { getMyProviders } from '../myProviders';
 import Animated, { Layout } from 'react-native-reanimated';
 
 const windowWidth = Dimensions.get('window').width;
@@ -123,8 +124,8 @@ const ProviderContainer2 = memo(({ provider, providerType, movieTitle, addStyle 
   }
   if (providerType === 'stream') {
     let newProvider = [];
-    if (constantsAndInfo.myProviders.some((str) => provider.includes(str))) {
-      newProvider = constantsAndInfo.myProviders.filter((str) => provider.includes(str));
+    if (getMyProviders().some((str) => provider.includes(str))) {
+      newProvider = getMyProviders().filter((str) => provider.includes(str));
     } else {
       newProvider = provider;
     }

@@ -765,7 +765,7 @@ export default function MovieDetails() {
                     </Animated.View>
                     {openPoster.open && <ModalPoster data={openPoster} openPoster={handleOpenPoster} />}
                     {openRating && <RatingModal imdb_id={movie.imdb_id} openRating={handleOpenRating} />}
-                    <NotificationBubble top={55} useData={useDataMovie} />
+                    <NotificationBubble top={insets.top} useData={useDataMovie} />
                     <NotificationBubble top={insets.top + 34} useData={useDataCollection} />
                   </>
                 )}
