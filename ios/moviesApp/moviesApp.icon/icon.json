@@ -1,0 +1,80 @@
+{
+  "fill" : {
+    "linear-gradient" : [
+      "display-p3:0.97607,0.87891,0.90527,1.00000",
+      "display-p3:0.95801,0.78125,0.81250,1.00000"
+    ]
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "hidden" : false,
+          "image-name" : "movies-top2 2.svg",
+          "name" : "movies-top2 2"
+        },
+        {
+          "hidden" : true,
+          "image-name" : "movies-top 2.svg",
+          "name" : "movies-top 2"
+        },
+        {
+          "hidden" : false,
+          "image-name" : "movies-strips 5.svg",
+          "name" : "movies-strips 5",
+          "opacity" : 0.8
+        },
+        {
+          "hidden" : true,
+          "image-name" : "movies-strips 3.svg",
+          "name" : "movies-strips 3"
+        },
+        {
+          "hidden" : false,
+          "image-name" : "movies-top_vg.svg",
+          "name" : "movies-top_vg",
+          "opacity" : 1
+        },
+        {
+          "hidden" : true,
+          "image-name" : "movies-bg2.svg",
+          "name" : "movies-bg2",
+          "opacity" : 1
+        },
+        {
+          "hidden" : false,
+          "image-name" : "movies-bg3.svg",
+          "name" : "movies-bg3"
+        },
+        {
+          "hidden" : false,
+          "image-name" : "movies-bg 2.svg",
+          "name" : "movies-bg 2",
+          "opacity" : 0.9
+        }
+      ],
+      "name" : "Group",
+      "position" : {
+        "scale" : 0.9,
+        "translation-in-points" : [
+          0,
+          0
+        ]
+      },
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.3
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
